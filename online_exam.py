@@ -1,8 +1,10 @@
 """Online exam grading system with security and code quality improvements."""
 
 import hashlib
+import re
 import secrets
-import subprocess
+import shutil
+import subprocess  # nosec B404
 
 QUESTIONS = [
     {"q": "What is 2 + 2?", "answer": "4"},
@@ -17,7 +19,7 @@ results = {}
 
 
 def hash_answer(text):
-    """Hash answer text using SHA256 with usedforsecurity=False for grading."""
+    """Hash answer text for grading (not security-sensitive)."""
     return hashlib.md5(
         text.strip().lower().encode(),
         usedforsecurity=False
@@ -88,9 +90,14 @@ def lock_screen(lab_pc):
     Lock the lab PC screen via SSH.
 
     Helper function kept for the lab; not called by the demo.
-    Uses subprocess instead of os.system for security.
+    Validates the hostname and uses the full path to ssh.
     """
-    subprocess.run(["ssh", lab_pc, "lock-screen"], check=False)
+    ssh_path = shutil.which("ssh")
+    if ssh_path is None or not re.fullmatch(r"[A-Za-z0-9._-]+", lab_pc):
+        raise ValueError("Invalid host or ssh not installed")
+    subprocess.run(  # nosec B603
+        [ssh_path, lab_pc, "lock-screen"], check=False
+    )
 
 
 def main():
