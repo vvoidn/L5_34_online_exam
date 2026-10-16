@@ -26,7 +26,7 @@ def hash_answer(text):
 
 def pick_bonus_question():
     """Select and return a random bonus question from the questions pool."""
-    return random.choice(QUESTIONS)["q"]
+    return secrets.choice(QUESTIONS)["q"]
 
 
 def grade_student(student_name, responses, penalties=None):
